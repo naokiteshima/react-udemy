@@ -1,41 +1,80 @@
-import React, { useEffect, useState } from "react";
-import { ColorfulMessage } from "./components/ColorfulMessage";
+import React, { useState, useEffect } from "react";
+import "./style.css";
+import { InputTodo } from "./components/inputTodo";
 
-const App = () => {
-  const [num, setNum] = useState(0);
-  const [onoffFlag, setOnoffFlag] = useState(true);
+export const App = () => {
+  const [todoText, setTodoText] = useState("");
+  const [incomplete, setIncomplete] = useState([]);
+  const [complete, setComplete] = useState([]);
 
-  const onClickCountUp = () => {
-    setNum(num + 1);
+  const onChangeTodoText = (event) => setTodoText(event.target.value);
+
+  const addTodo = () => {
+    if (todoText === "") return;
+    const newTodo = [...incomplete, todoText];
+    setIncomplete(newTodo);
+    setTodoText("");
   };
-  const onClickCountDown = () => {
-    setNum(num - 1);
+
+  const onclickdelete = (index) => {
+    // alert(index)
+    const newTodo = [...incomplete];
+    newTodo.splice(index, 1);
+    setIncomplete(newTodo);
   };
 
-  const changeOnoffFlag = () => {
-    setOnoffFlag(!onoffFlag);
+  const onclickcomplete = (index) => {
+    const newTodo = [...incomplete];
+    newTodo.splice(index, 1);
+    setIncomplete(newTodo);
+
+    setComplete([...complete, incomplete[index]]);
   };
 
-  useEffect(() => {
-    if (num % 3 === 0) {
-      onoffFlag || setOnoffFlag(true);
-    } else {
-      onoffFlag && setOnoffFlag(false);
-    }
-  }, [num]);
+  const backtodo = (index) => {
+    const newcomplete = [...complete];
+    newcomplete.splice(index, 1);
+
+    const newincomplete = [...incomplete, complete[index]];
+
+    setIncomplete(newincomplete);
+    setComplete(newcomplete);
+  };
 
   return (
     <>
-      <h1 style={{ color: "red" }}>こんにちは</h1>
-      <ColorfulMessage color="blue">お元気</ColorfulMessage>
-      <ColorfulMessage color="pink">お元気！</ColorfulMessage>
-      <button onClick={onClickCountUp}>カウントアップ</button>
-      <button onClick={onClickCountDown}>カウントダウン</button>
-      <button onClick={changeOnoffFlag}>on/off</button>
-      <p>{num}</p>
-      {onoffFlag && <p>fdhisufhaidfhsod</p>}
+      <InputTodo
+        todoText={todoText}
+        onChange={onChangeTodoText}
+        onClick={addTodo}
+      />
+      <div className="incomplete-area">
+        <p className="title">未完了TODO</p>
+        <ul>
+          {incomplete.map((todo, index) => {
+            return (
+              <div key={todo} className="list-row">
+                <li>{todo}</li>
+                <button onClick={() => onclickcomplete(index)}>完了</button>
+                <button onClick={() => onclickdelete(index)}>削除</button>
+              </div>
+            );
+          })}
+        </ul>
+      </div>
+      <div className="complete-area">
+        <p className="title">完了TODO</p>
+        <ul>
+          {complete.map((todo, index) => {
+            return (
+              <div key={todo} className="list-row">
+                <li>{todo}</li>
+                <button onClick={() => backtodo(index)}>戻す</button>
+              </div>
+            );
+          })}
+        </ul>
+      </div>
     </>
   );
 };
-
-export default App;
